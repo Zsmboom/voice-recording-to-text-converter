@@ -5,6 +5,9 @@ import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import SpeedIcon from '@mui/icons-material/Speed';
 import SecurityIcon from '@mui/icons-material/Security';
+import ArticleIcon from '@mui/icons-material/Article';
+import PsychologyIcon from '@mui/icons-material/Psychology';
+import LockIcon from '@mui/icons-material/Lock';
 import { Link as RouterLink } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 
@@ -135,33 +138,6 @@ export const Home = () => {
         </Container>
       </Box>
 
-      {/* Stats Section */}
-      <Container maxWidth="lg" sx={{ mb: 8 }}>
-        <Grid container spacing={4}>
-          <Grid item xs={12} md={4}>
-            <Paper sx={{ p: 3, textAlign: 'center' }}>
-              <SpeedIcon sx={{ fontSize: 40, color: 'primary.main', mb: 1 }} />
-              <Typography variant="h4" component="div" sx={{ mb: 1 }}>95%+</Typography>
-              <Typography>Recognition Accuracy</Typography>
-            </Paper>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <Paper sx={{ p: 3, textAlign: 'center' }}>
-              <SecurityIcon sx={{ fontSize: 40, color: 'primary.main', mb: 1 }} />
-              <Typography variant="h4" component="div" sx={{ mb: 1 }}>100%</Typography>
-              <Typography>Secure Processing</Typography>
-            </Paper>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <Paper sx={{ p: 3, textAlign: 'center' }}>
-              <AutoFixHighIcon sx={{ fontSize: 40, color: 'primary.main', mb: 1 }} />
-              <Typography variant="h4" component="div" sx={{ mb: 1 }}>AI</Typography>
-              <Typography>Smart Optimization</Typography>
-            </Paper>
-          </Grid>
-        </Grid>
-      </Container>
-
       {/* Features Section with Images */}
       <Box sx={{ bgcolor: 'grey.50', py: 8, mb: 8 }}>
         <Container maxWidth="lg">
@@ -185,18 +161,12 @@ export const Home = () => {
                 }}
                 elevation={2}
               >
-                <Box
-                  component="img"
-                  src="/images/realtime-recognition.svg"
-                  alt="Real-time voice recognition illustration"
-                  sx={{ width: 120, height: 120, mb: 2 }}
-                />
-                <MicIcon sx={{ fontSize: 48, mb: 2, color: 'primary.main' }} />
+                <ArticleIcon sx={{ fontSize: 64, mb: 3, color: 'primary.main' }} />
                 <Typography variant="h5" gutterBottom>
                   Real-time Recognition
                 </Typography>
                 <Typography color="text.secondary">
-                  High-accuracy, fast-response voice recognition with instant feedback
+                  Real-time voice recognition with paragraph detection and long-duration recording support
                 </Typography>
               </Paper>
             </Grid>
@@ -216,18 +186,12 @@ export const Home = () => {
                 }}
                 elevation={2}
               >
-                <Box
-                  component="img"
-                  src="/images/smart-formatting.svg"
-                  alt="Smart text formatting illustration"
-                  sx={{ width: 120, height: 120, mb: 2 }}
-                />
-                <TextFieldsIcon sx={{ fontSize: 48, mb: 2, color: 'primary.main' }} />
+                <PsychologyIcon sx={{ fontSize: 64, mb: 3, color: 'primary.main' }} />
                 <Typography variant="h5" gutterBottom>
-                  Smart Formatting
+                  AI Summary
                 </Typography>
                 <Typography color="text.secondary">
-                  Automatic paragraph breaks and punctuation for clear text structure
+                  Comprehensive document organization with AI, preserving all your ideas
                 </Typography>
               </Paper>
             </Grid>
@@ -247,18 +211,12 @@ export const Home = () => {
                 }}
                 elevation={2}
               >
-                <Box
-                  component="img"
-                  src="/images/ai-enhancement.svg"
-                  alt="AI text enhancement illustration"
-                  sx={{ width: 120, height: 120, mb: 2 }}
-                />
-                <AutoFixHighIcon sx={{ fontSize: 48, mb: 2, color: 'primary.main' }} />
+                <LockIcon sx={{ fontSize: 64, mb: 3, color: 'primary.main' }} />
                 <Typography variant="h5" gutterBottom>
-                  AI Enhancement
+                  Security
                 </Typography>
                 <Typography color="text.secondary">
-                  Advanced AI technology to optimize text quality and readability
+                  All content is stored locally, ensuring your data privacy and security
                 </Typography>
               </Paper>
             </Grid>
