@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Brain Shape -->
+  <path d="M60 20C40 20 25 35 25 55C25 75 40 85 60 85C80 85 95 75 95 55C95 35 80 20 60 20Z" fill="white" stroke="#1976d2" stroke-width="2"/>
+  <!-- Neural Network Lines -->
+  <path d="M40 45L60 65M60 65L80 45" stroke="#1976d2" stroke-width="2"/>
+  <path d="M40 65L60 45M60 45L80 65" stroke="#1976d2" stroke-width="2"/>
+  <!-- Connection Points -->
+  <circle cx="40" cy="45" r="4" fill="#1976d2"/>
+  <circle cx="60" cy="45" r="4" fill="#1976d2"/>
+  <circle cx="80" cy="45" r="4" fill="#1976d2"/>
+  <circle cx="40" cy="65" r="4" fill="#1976d2"/>
+  <circle cx="60" cy="65" r="4" fill="#1976d2"/>
+  <circle cx="80" cy="65" r="4" fill="#1976d2"/>
+  <!-- Pulse Animation -->
+  <circle cx="60" cy="55" r="8" fill="#dc004e" opacity="0.6">
+    <animate attributeName="r" values="8;12;8" dur="2s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.6;0;0.6" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  <!-- Text Enhancement Symbols -->
+  <path d="M30 90L45 90" stroke="#1976d2" stroke-width="2"/>
+  <path d="M50 90L65 90" stroke="#1976d2" stroke-width="2"/>
+  <path d="M70 90L90 90" stroke="#1976d2" stroke-width="2">
+    <animate attributeName="stroke-dasharray" values="0,20;20,0" dur="1.5s" repeatCount="indefinite"/>
+  </path>
+</svg> 

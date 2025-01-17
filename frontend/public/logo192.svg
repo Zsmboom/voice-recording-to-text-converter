@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="192" height="192" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="192" height="192" rx="48" fill="#1976d2"/>
+  
+  <!-- Microphone Icon -->
+  <path d="M96 48C85.0589 48 76 57.0589 76 68V104C76 114.941 85.0589 124 96 124C106.941 124 116 114.941 116 104V68C116 57.0589 106.941 48 96 48Z" 
+    fill="white"/>
+  
+  <!-- Stand -->
+  <path d="M96 124V144" stroke="white" stroke-width="12" stroke-linecap="round"/>
+  <path d="M72 144H120" stroke="white" stroke-width="12" stroke-linecap="round"/>
+  
+  <!-- Sound Waves -->
+  <g opacity="0.8">
+    <path d="M66 92V104C66 121.673 79.3269 136 96 136C112.673 136 126 121.673 126 104V92" 
+      stroke="white" 
+      stroke-width="8" 
+      stroke-linecap="round"/>
+    <path d="M54 86V104C54 128.301 72.699 148 96 148C119.301 148 138 128.301 138 104V86" 
+      stroke="white" 
+      stroke-width="8" 
+      stroke-linecap="round"
+      opacity="0.6"/>
+  </g>
+  
+  <!-- Animation -->
+  <circle cx="96" cy="96" r="84" stroke="white" stroke-width="6" opacity="0.2">
+    <animate attributeName="r" values="84;90;84" dur="2s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.2;0.1;0.2" dur="2s" repeatCount="indefinite"/>
+  </circle>
+</svg> 

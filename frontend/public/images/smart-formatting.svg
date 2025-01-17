@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Document Background -->
+  <rect x="20" y="15" width="80" height="90" rx="4" fill="white" stroke="#1976d2" stroke-width="2"/>
+  <!-- Text Lines -->
+  <rect x="30" y="25" width="60" height="4" rx="2" fill="#1976d2"/>
+  <rect x="30" y="35" width="40" height="4" rx="2" fill="#1976d2" opacity="0.7"/>
+  <rect x="30" y="45" width="50" height="4" rx="2" fill="#1976d2" opacity="0.7"/>
+  <!-- Paragraph Break -->
+  <rect x="30" y="60" width="55" height="4" rx="2" fill="#1976d2"/>
+  <rect x="30" y="70" width="45" height="4" rx="2" fill="#1976d2" opacity="0.7"/>
+  <rect x="30" y="80" width="50" height="4" rx="2" fill="#1976d2" opacity="0.7"/>
+  <!-- Formatting Marks -->
+  <circle cx="90" cy="35" r="3" fill="#dc004e"/>
+  <circle cx="90" cy="70" r="3" fill="#dc004e"/>
+  <!-- Animation -->
+  <rect x="30" y="90" width="0" height="4" rx="2" fill="#dc004e">
+    <animate attributeName="width" values="0;40;0" dur="2s" repeatCount="indefinite"/>
+  </rect>
+</svg> 

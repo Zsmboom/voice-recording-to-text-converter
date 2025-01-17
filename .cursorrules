@@ -1,0 +1,49 @@
+{
+    "seo": {
+        "keywords": [
+            "voice recording to text converter",
+            "ai recording to text",
+            "speech to text AI",
+            "audio transcription",
+            "voice recognition",
+            "speech recognition",
+            "text transcription"
+        ],
+        "title": "Voice Recording to Text Converter | AI-Powered Speech Recognition",
+        "description": "Convert voice recordings to text with advanced AI technology. Professional speech to text conversion with high accuracy. Try our AI recording to text converter now.",
+        "meta": {
+            "robots": "index, follow",
+            "viewport": "width=device-width, initial-scale=1",
+            "author": "Voice to Text Converter"
+        },
+        "sitemap": {
+            "enabled": true,
+            "autoGenerate": true,
+            "changefreq": "weekly",
+            "priority": 0.8,
+            "excludePatterns": [
+                "/temp/*",
+                "/admin/*",
+                "/*.tmp"
+            ]
+        },
+        "optimization": {
+            "preventRedirects": true,
+            "enforceCanonicalUrls": true,
+            "preventDuplicateContent": true,
+            "requireSSL": true,
+            "minifyResources": true,
+            "compressAssets": true
+        }
+    },
+    "language": {
+        "default": "en",
+        "supported": ["en"],
+        "enforce": true
+    },
+    "content": {
+        "enforceLanguage": "en",
+        "requireAltText": true,
+        "requireMetaDescription": true
+    }
+} 
