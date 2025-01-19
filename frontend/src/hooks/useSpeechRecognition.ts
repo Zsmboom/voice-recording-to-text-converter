@@ -30,6 +30,7 @@ interface UseSpeechRecognitionReturn {
   selectedLanguage: Language;
   setSelectedLanguage: (language: Language) => void;
   setText: (value: string | ((prevText: string) => string)) => void;
+  clearText: () => void;
 }
 
 export const useSpeechRecognition = (): UseSpeechRecognitionReturn => {
@@ -37,6 +38,7 @@ export const useSpeechRecognition = (): UseSpeechRecognitionReturn => {
   const [isListening, setIsListening] = useState<boolean>(false);
   const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
   const [selectedLanguage, setSelectedLanguage] = useState<Language>(SUPPORTED_LANGUAGES[0]);
+  const [interimText, setInterimText] = useState<string>('');
 
   useEffect(() => {
     if (typeof window !== 'undefined' && 'SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
@@ -48,16 +50,17 @@ export const useSpeechRecognition = (): UseSpeechRecognitionReturn => {
 
       recognition.onresult = (event: SpeechRecognitionEvent) => {
         let finalTranscript = '';
+        let interimTranscript = '';
+
+        // 只处理最新的结果
+        const result = event.results[event.results.length - 1];
+        const transcript = result[0].transcript;
         
-        for (let i = 0; i < event.results.length; i++) {
-          const transcript = event.results[i][0].transcript;
-          if (event.results[i].isFinal) {
-            finalTranscript += transcript + ' ';
-          }
-        }
-        
-        if (finalTranscript) {
-          setText(finalTranscript);
+        if (result.isFinal) {
+          setText(prev => prev + transcript + ' ');
+          setInterimText('');
+        } else {
+          setInterimText(transcript);
         }
       };
 
@@ -66,7 +69,16 @@ export const useSpeechRecognition = (): UseSpeechRecognitionReturn => {
           recognition.start();
         } else {
           setIsListening(false);
+          if (interimText) {
+            setText(prev => prev + interimText + ' ');
+            setInterimText('');
+          }
         }
+      };
+
+      recognition.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
+        setIsListening(false);
       };
 
       setRecognition(recognition);
@@ -75,9 +87,18 @@ export const useSpeechRecognition = (): UseSpeechRecognitionReturn => {
 
   const startListening = useCallback(() => {
     if (recognition) {
-      setText('');
-      recognition.start();
-      setIsListening(true);
+      try {
+        recognition.start();
+        setIsListening(true);
+      } catch (error) {
+        console.error('Error starting recognition:', error);
+        // 如果已经在运行，先停止再重新开始
+        recognition.stop();
+        setTimeout(() => {
+          recognition.start();
+          setIsListening(true);
+        }, 100);
+      }
     }
   }, [recognition]);
 
@@ -88,8 +109,13 @@ export const useSpeechRecognition = (): UseSpeechRecognitionReturn => {
     }
   }, [recognition]);
 
+  const clearText = useCallback(() => {
+    setText('');
+    setInterimText('');
+  }, []);
+
   return {
-    text,
+    text: text + (interimText ? interimText : ''),
     isListening,
     startListening,
     stopListening,
@@ -97,5 +123,6 @@ export const useSpeechRecognition = (): UseSpeechRecognitionReturn => {
     selectedLanguage,
     setSelectedLanguage,
     setText,
+    clearText,
   };
 }; 

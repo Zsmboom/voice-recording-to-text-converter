@@ -15,7 +15,9 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import MicIcon from '@mui/icons-material/Mic';
-import StopIcon from '@mui/icons-material/Stop';
+import PauseIcon from '@mui/icons-material/Pause';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import LanguageIcon from '@mui/icons-material/Language';
 import ArticleIcon from '@mui/icons-material/Article';
 import DescriptionIcon from '@mui/icons-material/Description';
@@ -81,34 +83,82 @@ export const VoiceRecorder: React.FC = () => {
     selectedLanguage,
     setSelectedLanguage,
     setText,
+    clearText,
   } = useSpeechRecognition();
   const [isProcessing, setIsProcessing] = useState(false);
   const [processedText, setProcessedText] = useState<string>('');
   const [error, setError] = useState<string>('');
+  const [isPaused, setIsPaused] = useState(false);
 
   const handleStartRecording = () => {
-    setText('');
+    clearText();
     setProcessedText('');
     setError('');
+    setIsPaused(false);
     startListening();
   };
 
-  const handleStopRecording = async () => {
+  const handlePauseRecording = () => {
+    stopListening();
+    setIsPaused(true);
+  };
+
+  const handleContinueRecording = () => {
+    setIsPaused(false);
+    startListening();
+  };
+
+  const handleAISummarize = async () => {
+    // 先停止录音
+    stopListening();
+    setIsPaused(false);
+
+    // 检查文本是否为空
     if (!text.trim()) {
       setError('No text recorded. Please try again.');
       return;
     }
 
-    stopListening();
+    console.log('Starting AI summarization with text:', text);
+
+    // 开始处理文本
     setIsProcessing(true);
+    setProcessedText(''); // 清空之前的处理结果
     
     try {
-      const result = await processText(text);
-      setProcessedText(result);
+      let accumulatedText = '';
+      
+      await processText(text, (partialText, isLast) => {
+        console.log('Received response:', { partialText, isLast });
+        
+        if (partialText) {
+          // 不再累积文本，直接使用最新的处理结果
+          console.log('Setting processed text:', {
+            length: partialText.length,
+            content: partialText,
+            isLast
+          });
+          
+          // 更新状态
+          setProcessedText(partialText);
+          
+          if (isLast) {
+            console.log('Final text set, processing complete');
+            setIsProcessing(false);
+          }
+        }
+      });
+      
+      // 如果处理完成但 isLast 没有被正确设置，确保更新状态
+      setIsProcessing(false);
+      
+      if (!accumulatedText) {
+        console.warn('No text was accumulated during processing');
+        setError('No response received from AI. Please try again.');
+      }
     } catch (err) {
+      console.error('Error in handleAISummarize:', err);
       setError('Error processing text. Please try again.');
-      console.error('处理文本时出错:', err);
-    } finally {
       setIsProcessing(false);
     }
   };
@@ -119,12 +169,46 @@ export const VoiceRecorder: React.FC = () => {
       return;
     }
 
-    // 创建一个简单的HTML文档
+    // 将 Markdown 转换为 Word 适用的 HTML 格式
+    const convertMarkdownToHtml = (markdown: string) => {
+      // 处理标题
+      let html = markdown
+        .replace(/^# (.*$)/gm, '<h1>$1</h1>')
+        .replace(/^## (.*$)/gm, '<h2>$1</h2>')
+        .replace(/^### (.*$)/gm, '<h3>$1</h3>')
+        .replace(/^#### (.*$)/gm, '<h4>$1</h4>');
+
+      // 处理列表
+      html = html
+        .replace(/^\s*[-*+]\s+(.*)$/gm, '<li>$1</li>')
+        .replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
+
+      // 处理段落
+      html = html
+        .replace(/^(?!<[h|u|o])(.*$)/gm, '<p>$1</p>')
+        .replace(/\n\n/g, '');
+
+      return html;
+    };
+
+    // 创建一个包含样式的HTML文档
     const htmlContent = `
       <!DOCTYPE html>
       <html>
+        <head>
+          <meta charset="UTF-8">
+          <style>
+            body { font-family: 'Arial', sans-serif; line-height: 1.6; }
+            h1 { font-size: 24px; color: #333; margin-bottom: 20px; }
+            h2 { font-size: 20px; color: #444; margin-top: 20px; }
+            h3 { font-size: 16px; color: #555; margin-top: 15px; }
+            p { margin-bottom: 10px; }
+            ul { margin-left: 20px; margin-bottom: 15px; }
+            li { margin-bottom: 5px; }
+          </style>
+        </head>
         <body>
-          ${processedText.split('\n').map(line => `<p>${line}</p>`).join('')}
+          ${convertMarkdownToHtml(processedText)}
         </body>
       </html>
     `;
@@ -157,6 +241,48 @@ export const VoiceRecorder: React.FC = () => {
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
   };
+
+  const renderOptimizedText = () => {
+    console.log('Rendering optimized text:', {
+      isProcessing,
+      hasProcessedText: !!processedText,
+      processedTextLength: processedText.length,
+      processedTextContent: processedText,
+      markdownPluginsLoaded: true
+    });
+
+    if (isProcessing) {
+      return (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center', height: '100%' }}>
+          <CircularProgress size={20} />
+          <Typography>Processing text...</Typography>
+        </Box>
+      );
+    }
+
+    if (processedText) {
+      console.log('Attempting to render markdown with text:', processedText);
+      return (
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+          {processedText}
+        </ReactMarkdown>
+      );
+    }
+
+    return (
+      <Typography color="text.secondary" sx={{ textAlign: 'center', mt: 2 }}>
+        Processed text will appear here...
+      </Typography>
+    );
+  };
+
+  console.log('Current state:', {
+    isProcessing,
+    hasProcessedText: !!processedText,
+    processedTextLength: processedText.length,
+    isListening,
+    isPaused
+  });
 
   if (!hasRecognitionSupport) {
     return (
@@ -197,7 +323,7 @@ export const VoiceRecorder: React.FC = () => {
                 const lang = SUPPORTED_LANGUAGES.find(l => l.code === e.target.value);
                 if (lang) setSelectedLanguage(lang);
               }}
-              disabled={isListening}
+              disabled={isListening || isPaused}
             >
               {SUPPORTED_LANGUAGES.map((lang) => (
                 <MenuItem key={lang.code} value={lang.code}>
@@ -209,24 +335,60 @@ export const VoiceRecorder: React.FC = () => {
 
           {/* Recording Controls */}
           <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
-            <Button
-              variant="contained"
-              color="primary"
-              startIcon={<MicIcon />}
-              onClick={handleStartRecording}
-              disabled={isListening || isProcessing}
-            >
-              Start Recording
-            </Button>
-            <Button
-              variant="contained"
-              color="secondary"
-              startIcon={<StopIcon />}
-              onClick={handleStopRecording}
-              disabled={!isListening || isProcessing}
-            >
-              Stop Recording
-            </Button>
+            {!isListening && !isPaused && !isProcessing && !text.trim() && (
+              <Button
+                variant="contained"
+                color="primary"
+                startIcon={<MicIcon />}
+                onClick={handleStartRecording}
+              >
+                Start Recording
+              </Button>
+            )}
+            {isListening && (
+              <>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  startIcon={<PauseIcon />}
+                  onClick={handlePauseRecording}
+                  disabled={isProcessing}
+                >
+                  Pause Recording
+                </Button>
+                <Button
+                  variant="contained"
+                  color="success"
+                  startIcon={<AutoFixHighIcon />}
+                  onClick={handleAISummarize}
+                  disabled={isProcessing}
+                >
+                  AI Summarize
+                </Button>
+              </>
+            )}
+            {isPaused && (
+              <>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  startIcon={<PlayArrowIcon />}
+                  onClick={handleContinueRecording}
+                  disabled={isProcessing}
+                >
+                  Continue Recording
+                </Button>
+                <Button
+                  variant="contained"
+                  color="success"
+                  startIcon={<AutoFixHighIcon />}
+                  onClick={handleAISummarize}
+                  disabled={isProcessing}
+                >
+                  AI Summarize
+                </Button>
+              </>
+            )}
           </Box>
         </Box>
 
@@ -236,10 +398,16 @@ export const VoiceRecorder: React.FC = () => {
           </Typography>
         )}
 
+        {isPaused && (
+          <Typography color="secondary" sx={{ mt: 2 }}>
+            Recording paused. Click Continue to resume or AI Summarize to process.
+          </Typography>
+        )}
+
         {isProcessing && (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center', mt: 2 }}>
             <CircularProgress size={20} />
-            <Typography>Processing...</Typography>
+            <Typography>Processing text...</Typography>
           </Box>
         )}
       </Box>
@@ -266,7 +434,7 @@ export const VoiceRecorder: React.FC = () => {
                 size="small"
                 startIcon={<DescriptionIcon />}
                 onClick={handleDownloadWord}
-                disabled={!processedText.trim()}
+                disabled={!processedText.trim() || isProcessing}
                 color="primary"
               >
                 下载Word
@@ -276,7 +444,7 @@ export const VoiceRecorder: React.FC = () => {
                 size="small"
                 startIcon={<ArticleIcon />}
                 onClick={handleDownloadMarkdown}
-                disabled={!processedText.trim()}
+                disabled={!processedText.trim() || isProcessing}
                 color="primary"
               >
                 下载MD
@@ -285,9 +453,7 @@ export const VoiceRecorder: React.FC = () => {
           </Box>
           <TextContainer>
             <MarkdownContainer>
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {processedText || 'Processed text will appear here...'}
-              </ReactMarkdown>
+              {renderOptimizedText()}
             </MarkdownContainer>
           </TextContainer>
         </Grid>
