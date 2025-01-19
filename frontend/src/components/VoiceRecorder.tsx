@@ -124,15 +124,13 @@ export const VoiceRecorder: React.FC = () => {
     // 开始处理文本
     setIsProcessing(true);
     setProcessedText(''); // 清空之前的处理结果
+    setError(''); // 清空错误信息
     
     try {
-      let accumulatedText = '';
-      
       await processText(text, (partialText, isLast) => {
         console.log('Received response:', { partialText, isLast });
         
         if (partialText) {
-          // 不再累积文本，直接使用最新的处理结果
           console.log('Setting processed text:', {
             length: partialText.length,
             content: partialText,
@@ -151,11 +149,6 @@ export const VoiceRecorder: React.FC = () => {
       
       // 如果处理完成但 isLast 没有被正确设置，确保更新状态
       setIsProcessing(false);
-      
-      if (!accumulatedText) {
-        console.warn('No text was accumulated during processing');
-        setError('No response received from AI. Please try again.');
-      }
     } catch (err) {
       console.error('Error in handleAISummarize:', err);
       setError('Error processing text. Please try again.');
