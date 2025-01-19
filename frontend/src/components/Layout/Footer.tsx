@@ -1,4 +1,5 @@
-import { Box, Container, Typography, Link } from '@mui/material';
+import { Box, Container, Typography, Link, Stack } from '@mui/material';
+import TwitterIcon from '@mui/icons-material/Twitter';
 
 export const Footer = () => {
   return (
@@ -12,15 +13,38 @@ export const Footer = () => {
       }}
     >
       <Container maxWidth="lg">
-        <Typography variant="body2" color="text.secondary" align="center">
-          {'Copyright © '}
-          <Link color="inherit" href="/">
-            Voice to Text Converter
-          </Link>{' '}
-          {new Date().getFullYear()}
-          {'. '}
-          All rights reserved.
-        </Typography>
+        <Stack spacing={2} alignItems="center">
+          <Typography variant="body2" color="text.secondary" align="center">
+            {'Copyright © '}
+            <Link color="inherit" href="/">
+              Voice to Text Converter
+            </Link>{' '}
+            {new Date().getFullYear()}
+            {'. '}
+            All rights reserved.
+          </Typography>
+          
+          <Link
+            href="https://x.com/ShiMin_alcor"
+            target="_blank"
+            rel="noopener noreferrer"
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 0.5,
+              color: 'text.secondary',
+              textDecoration: 'none',
+              '&:hover': {
+                color: 'primary.main',
+              },
+            }}
+          >
+            <TwitterIcon fontSize="small" />
+            <Typography variant="body2">
+              关注我们的Twitter
+            </Typography>
+          </Link>
+        </Stack>
       </Container>
     </Box>
   );
