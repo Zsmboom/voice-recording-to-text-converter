@@ -15,8 +15,8 @@ console.log('Environment variables:', {
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
   baseURL: "https://vip.apiyi.com/v1",
-  timeout: 30000, // 增加超时时间到30秒
-  maxRetries: 2
+  timeout: 60000, // 增加超时时间到60秒
+  maxRetries: 3
 });
 
 const app = express();
@@ -40,7 +40,8 @@ app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'ok',
     env: process.env.NODE_ENV,
-    hasApiKey: !!process.env.OPENAI_API_KEY
+    hasApiKey: !!process.env.OPENAI_API_KEY,
+    apiBaseUrl: openai.baseURL
   });
 });
 
@@ -53,18 +54,32 @@ function splitIntoSentences(text) {
 app.post('/api/process-text', async (req, res) => {
   try {
     const { text } = req.body;
+    console.log('Received request:', {
+      textLength: text?.length,
+      hasText: !!text,
+      contentType: req.headers['content-type']
+    });
 
     if (!text) {
       console.error('No text provided in request');
-      return res.status(400).json({ error: '需要提供文本内容' });
+      return res.status(400).json({ 
+        error: '需要提供文本内容',
+        details: 'Request body must contain a text field'
+      });
     }
 
     if (!process.env.OPENAI_API_KEY) {
       console.error('OpenAI API密钥未配置');
-      return res.status(500).json({ error: 'OpenAI API配置错误' });
+      return res.status(500).json({ 
+        error: 'OpenAI API配置错误',
+        details: 'API key is not set in environment variables'
+      });
     }
 
-    console.log('Processing text:', { length: text.length, preview: text.substring(0, 100) });
+    console.log('Processing text:', { 
+      length: text.length, 
+      preview: text.substring(0, 100) 
+    });
 
     // 将文本分成句子
     const sentences = splitIntoSentences(text);
@@ -86,10 +101,12 @@ app.post('/api/process-text', async (req, res) => {
         console.log('Processing batch:', { 
           batchNumber: Math.floor(i / 3) + 1, 
           sentenceCount: batchCount,
+          batchLength: currentBatch.length,
           batchPreview: currentBatch.substring(0, 100)
         });
 
         try {
+          console.log('Sending request to OpenAI API...');
           const completion = await openai.chat.completions.create({
             model: "gpt-3.5-turbo-1106",
             messages: [
@@ -115,13 +132,13 @@ app.post('/api/process-text', async (req, res) => {
             frequency_penalty: 0.3,
           });
 
-          const processedBatch = completion.choices[0].message.content;
-          console.log('Processed batch result:', { 
-            length: processedBatch.length,
-            preview: processedBatch.substring(0, 100)
+          console.log('Received response from OpenAI:', {
+            status: 'success',
+            responseLength: completion.choices[0].message.content.length,
+            preview: completion.choices[0].message.content.substring(0, 100)
           });
 
-          // 发送处理后的批次
+          const processedBatch = completion.choices[0].message.content;
           res.write(JSON.stringify({
             type: 'partial',
             text: processedBatch,
@@ -132,6 +149,8 @@ app.post('/api/process-text', async (req, res) => {
           console.error('Error processing batch:', {
             batchNumber: Math.floor(i / 3) + 1,
             error: batchError.message,
+            errorName: batchError.name,
+            errorStack: batchError.stack,
             response: batchError.response?.data
           });
           throw batchError;
@@ -146,8 +165,7 @@ app.post('/api/process-text', async (req, res) => {
     console.log('Processing completed successfully');
     res.end();
   } catch (error) {
-    console.error('处理文本时出错:', error.message);
-    console.error('错误详情:', {
+    console.error('处理文本时出错:', {
       name: error.name,
       message: error.message,
       stack: error.stack,
@@ -166,6 +184,7 @@ app.post('/api/process-text', async (req, res) => {
       details: error.message,
       type: error.name,
       errorCode: error.response?.status || error.code,
+      apiError: error.response?.data || null,
       config: error.config ? {
         url: error.config.url,
         method: error.config.method,
