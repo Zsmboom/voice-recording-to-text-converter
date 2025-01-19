@@ -33,7 +33,7 @@ export const Blog = () => {
   const [page, setPage] = useState(1);
   const totalPages = Math.ceil(MOCK_POSTS.length / ITEMS_PER_PAGE);
 
-  const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
+  const handlePageChange = (_: React.ChangeEvent<unknown>, value: number) => {
     setPage(value);
     window.scrollTo(0, 0);
   };
