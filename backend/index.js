@@ -23,11 +23,9 @@ const app = express();
 
 // 配置CORS
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://voice-recording-to-text-converter.vercel.app', 'https://recordingtotextconverter.it.com', 'https://www.recordingtotextconverter.it.com']
-    : 'http://localhost:5173',
+  origin: '*',  // 允许所有域名访问
   methods: ['GET', 'POST', 'OPTIONS'],
-  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization'],
   optionsSuccessStatus: 200
 };
 
@@ -35,7 +33,7 @@ app.use(cors(corsOptions));
 app.use(express.json({ limit: '1mb' }));
 
 // 预检请求处理
-app.options('/api/process-text', cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 // 健康检查端点
 app.get('/api/health', (req, res) => {
@@ -177,10 +175,13 @@ app.post('/api/process-text', async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
-
-// 导出处理函数供Vercel使用
-module.exports = app; 
+// 如果在Vercel环境中，导出handler
+if (process.env.VERCEL) {
+  module.exports = app;
+} else {
+  // 本地开发环境
+  const PORT = process.env.PORT || 3001;
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
+} 
