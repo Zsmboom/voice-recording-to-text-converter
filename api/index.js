@@ -5,6 +5,13 @@ const OpenAI = require('openai');
 
 dotenv.config();
 
+// 环境变量检查
+console.log('Environment variables:', {
+  NODE_ENV: process.env.NODE_ENV,
+  OPENAI_API_KEY: process.env.OPENAI_API_KEY ? '已设置' : '未设置',
+  BASE_URL: process.env.BASE_URL || '未设置'
+});
+
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
   baseURL: "https://vip.apiyi.com/v1"
@@ -17,7 +24,7 @@ const corsOptions = {
   origin: process.env.NODE_ENV === 'production' 
     ? ['https://recordingtotextconverter.it.com', 'https://www.recordingtotextconverter.it.com']
     : 'http://localhost:5173',
-  methods: ['GET', 'POST'],
+  methods: ['GET', 'POST', 'OPTIONS'],
   credentials: true
 };
 
@@ -26,14 +33,20 @@ app.use(express.json());
 
 // 健康检查端点
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok' });
+  res.json({ 
+    status: 'ok',
+    env: process.env.NODE_ENV,
+    hasApiKey: !!process.env.OPENAI_API_KEY
+  });
 });
 
 app.post('/api/process-text', async (req, res) => {
   try {
+    console.log('Received request body:', req.body);
     const { text } = req.body;
 
     if (!text) {
+      console.error('No text provided in request');
       return res.status(400).json({ error: '需要提供文本内容' });
     }
 
@@ -42,6 +55,7 @@ app.post('/api/process-text', async (req, res) => {
       return res.status(500).json({ error: 'OpenAI API配置错误' });
     }
 
+    console.log('Making OpenAI API request...');
     const completion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [
@@ -74,6 +88,7 @@ app.post('/api/process-text', async (req, res) => {
       max_tokens: 2000,
     });
 
+    console.log('OpenAI API response received');
     const processedText = completion.choices[0].message.content;
 
     res.json({ processedText });
@@ -83,11 +98,24 @@ app.post('/api/process-text', async (req, res) => {
       name: error.name,
       message: error.message,
       stack: error.stack,
-      response: error.response?.data
+      response: error.response?.data,
+      config: error.config ? {
+        url: error.config.url,
+        method: error.config.method,
+        baseURL: error.config.baseURL,
+        headers: error.config.headers
+      } : 'No config available'
     });
+    
     res.status(500).json({ 
       error: '处理文本时出错',
-      details: error.message 
+      details: error.message,
+      type: error.name,
+      config: error.config ? {
+        url: error.config.url,
+        method: error.config.method,
+        baseURL: error.config.baseURL
+      } : null
     });
   }
 });
