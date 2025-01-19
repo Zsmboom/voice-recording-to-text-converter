@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:3001/api';
+const API_URL = import.meta.env.PROD 
+  ? '/api'  // 生产环境使用相对路径
+  : 'http://localhost:3001/api';  // 开发环境使用本地地址
 
 export const processText = async (text: string): Promise<string> => {
   try {

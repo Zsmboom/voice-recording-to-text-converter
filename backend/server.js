@@ -6,12 +6,27 @@ const OpenAI = require('openai');
 dotenv.config();
 
 const app = express();
-app.use(cors());
+
+// 配置CORS
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production' 
+    ? ['https://recordingtotextconverter.it.com', 'https://www.recordingtotextconverter.it.com']
+    : 'http://localhost:5173',
+  methods: ['GET', 'POST'],
+  credentials: true
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
   baseURL: "https://vip.apiyi.com/v1"
+});
+
+// 健康检查端点
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok' });
 });
 
 app.post('/api/process-text', async (req, res) => {
@@ -20,6 +35,11 @@ app.post('/api/process-text', async (req, res) => {
 
     if (!text) {
       return res.status(400).json({ error: '需要提供文本内容' });
+    }
+
+    if (!process.env.OPENAI_API_KEY) {
+      console.error('OpenAI API密钥未配置');
+      return res.status(500).json({ error: 'OpenAI API配置错误' });
     }
 
     const completion = await openai.chat.completions.create({
@@ -75,4 +95,5 @@ app.post('/api/process-text', async (req, res) => {
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`服务器运行在端口 ${PORT}`);
+  console.log(`环境: ${process.env.NODE_ENV || 'development'}`);
 }); 
