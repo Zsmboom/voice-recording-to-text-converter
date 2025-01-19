@@ -5,7 +5,8 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/backend/server.js"
+      "dest": "/backend/server.js",
+      "methods": ["GET", "POST", "OPTIONS"]
     },
     {
       "handle": "filesystem"
@@ -14,5 +15,11 @@
       "src": "/(.*)",
       "dest": "/index.html"
     }
-  ]
+  ],
+  "functions": {
+    "backend/server.js": {
+      "memory": 1024,
+      "maxDuration": 10
+    }
+  }
 } 
