@@ -1,10 +1,5 @@
 import { Container, Typography, Box, Paper, Grid, Accordion, AccordionSummary, AccordionDetails, Button } from '@mui/material';
-import MicIcon from '@mui/icons-material/Mic';
-import TextFieldsIcon from '@mui/icons-material/TextFields';
-import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import SpeedIcon from '@mui/icons-material/Speed';
-import SecurityIcon from '@mui/icons-material/Security';
 import ArticleIcon from '@mui/icons-material/Article';
 import PsychologyIcon from '@mui/icons-material/Psychology';
 import LockIcon from '@mui/icons-material/Lock';
