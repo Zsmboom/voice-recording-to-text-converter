@@ -26,6 +26,9 @@ export const Header = () => {
           <Button color="inherit" component={RouterLink} to="/recorder">
             Record
           </Button>
+          <Button color="inherit" component={RouterLink} to="/blog">
+            Blog
+          </Button>
         </Box>
       </Toolbar>
     </AppBar>
