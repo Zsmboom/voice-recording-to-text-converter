@@ -24,14 +24,18 @@ const app = express();
 // 配置CORS
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production' 
-    ? ['https://recordingtotextconverter.it.com', 'https://www.recordingtotextconverter.it.com']
+    ? ['https://voice-recording-to-text-converter.vercel.app', 'https://recordingtotextconverter.it.com', 'https://www.recordingtotextconverter.it.com']
     : 'http://localhost:5173',
   methods: ['GET', 'POST', 'OPTIONS'],
-  credentials: true
+  credentials: true,
+  optionsSuccessStatus: 200
 };
 
 app.use(cors(corsOptions));
 app.use(express.json({ limit: '1mb' }));
+
+// 预检请求处理
+app.options('/api/process-text', cors(corsOptions));
 
 // 健康检查端点
 app.get('/api/health', (req, res) => {

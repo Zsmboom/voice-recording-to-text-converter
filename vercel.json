@@ -5,7 +5,7 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/api",
+      "dest": "backend/index.js",
       "methods": ["GET", "POST", "OPTIONS"]
     },
     {
