@@ -12,11 +12,16 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  IconButton,
+  Tooltip,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import MicIcon from '@mui/icons-material/Mic';
 import StopIcon from '@mui/icons-material/Stop';
 import LanguageIcon from '@mui/icons-material/Language';
+import DownloadIcon from '@mui/icons-material/Download';
+import ArticleIcon from '@mui/icons-material/Article';
+import DescriptionIcon from '@mui/icons-material/Description';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useSpeechRecognition, SUPPORTED_LANGUAGES } from '../hooks/useSpeechRecognition';
@@ -109,6 +114,51 @@ export const VoiceRecorder: React.FC = () => {
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  const handleDownloadWord = () => {
+    if (!processedText.trim()) {
+      setError('没有可下载的内容。请先录制并处理文本。');
+      return;
+    }
+
+    // 创建一个简单的HTML文档
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+        <body>
+          ${processedText.split('\n').map(line => `<p>${line}</p>`).join('')}
+        </body>
+      </html>
+    `;
+
+    // 创建Blob对象
+    const blob = new Blob([htmlContent], { type: 'application/msword' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'voice-recording.doc';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  };
+
+  const handleDownloadMarkdown = () => {
+    if (!processedText.trim()) {
+      setError('没有可下载的内容。请先录制并处理文本。');
+      return;
+    }
+
+    const blob = new Blob([processedText], { type: 'text/markdown' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'voice-recording.md';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
   };
 
   if (!hasRecognitionSupport) {
@@ -209,9 +259,33 @@ export const VoiceRecorder: React.FC = () => {
           </TextContainer>
         </Grid>
         <Grid item xs={12} md={6}>
-          <Typography variant="h6" gutterBottom>
-            Optimized Text
-          </Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+            <Typography variant="h6">
+              Optimized Text
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<DescriptionIcon />}
+                onClick={handleDownloadWord}
+                disabled={!processedText.trim()}
+                color="primary"
+              >
+                下载Word
+              </Button>
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<ArticleIcon />}
+                onClick={handleDownloadMarkdown}
+                disabled={!processedText.trim()}
+                color="primary"
+              >
+                下载MD
+              </Button>
+            </Box>
+          </Box>
           <TextContainer>
             <MarkdownContainer>
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
